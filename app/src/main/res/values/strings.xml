@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">LAB2-CINAESTE</string>
+    <string-array name="Fokus">
+        <item>Medicinski</item>
+        <item>Botanicki</item>
+        <item>Kuharski</item>
+    </string-array>
+</resources>
