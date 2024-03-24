@@ -2,10 +2,12 @@ package com.example.lab2_cinaeste
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
@@ -23,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var plantListAdapter: PlantListAdapter
     private lateinit var biljkeRV : List<Biljka>
 
+    private var defaultMode: String = "Botanicki" // Defaultni mod
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +34,10 @@ class MainActivity : AppCompatActivity() {
         plantRecyclerView = findViewById(R.id.biljkeRV)
         plantRecyclerView.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
         biljkeRV = getAllBiljke();
-        plantListAdapter = PlantListAdapter(listOf())
+        plantListAdapter = PlantListAdapter(biljkeRV,defaultMode) { clickedPlant ->
+            val similarPlants = biljkeRV.filter { it.medicinskeKoristi.intersect(clickedPlant.medicinskeKoristi).isNotEmpty() }
+            plantListAdapter.updatePlants(biljkeRV)
+        }
         plantRecyclerView.adapter = plantListAdapter
         plantListAdapter.updatePlants(biljkeRV)
         spinner = findViewById(R.id.modSpinner)
@@ -42,12 +48,18 @@ class MainActivity : AppCompatActivity() {
                 position: Int,
                 id: Long
             ) {
-                val selectedItem = parent.getItemAtPosition(position) as String
+                    plantListAdapter.updateMode(defaultMode)
+                    println("Selected Mode: $defaultMode")
+
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // Do nothing
             }
+        }
+        val resetButton: Button = findViewById(R.id.resetButton)
+        resetButton.setOnClickListener{
+            plantListAdapter.updatePlants(biljkeRV);
         }
     }
 
@@ -170,36 +182,95 @@ class MainActivity : AppCompatActivity() {
     )
 
     class PlantListAdapter(
-        private var biljkeRV: List<Biljka>
-    ) : RecyclerView.Adapter<PlantListAdapter.PlantViewHolder>() {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlantViewHolder {
-            val view = LayoutInflater
-                .from(parent.context)
-                .inflate(R.layout.medicinski_layout, parent, false)
-            return PlantViewHolder(view)
+        private var biljkeRV: List<Biljka>,
+        private var mode : String,
+        private val onItemClick: (Biljka) -> Unit
+    ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+            val layoutId = when (mode){
+                "Medicinski" -> R.layout.medicinski_layout
+                "Botanicki"  -> R.layout.botanicki_layout
+                "Kuharski"   -> R.layout.kuharski_layout
+                else -> R.layout.medicinski_layout
+            }
+            val view = LayoutInflater.from(parent.context).inflate(layoutId, parent, false)
+            return when (mode){
+                "Medicinski" -> MedicinskiViewHolder(view)
+                "Botanicki"  -> BotanickiViewHolder(view)
+                "Kuharski"   -> KuharskiViewHolder(view)
+                else -> MedicinskiViewHolder(view)
+            }
         }
 
         override fun getItemCount(): Int = biljkeRV.size
-        override fun onBindViewHolder(holder: PlantViewHolder, position: Int) {
-
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+            Log.d("PlantListAdapter", "onBindViewHolder called for position: $position")
             val plant = biljkeRV[position]
-            holder.nazivBiljke.text = plant.naziv
-            holder.upozorenje.text = plant.medicinskoUpozorenje
-            if (plant.medicinskeKoristi.size >= 1) {
-                holder.korist1.text = plant.medicinskeKoristi[0].opis
-            } else {
-                holder.korist1.text = ""
+            holder.itemView.setOnClickListener { onItemClick(plant) }
+
+            when (holder) {
+                is MedicinskiViewHolder ->{
+                    Log.d("PlantListAdapter", "Binding MedicinskiViewHolder")
+                    holder.nazivBiljke.text = plant.naziv
+                    holder.tekstUpozorenja.text = plant.medicinskoUpozorenje
+                    if (plant.medicinskeKoristi.size >= 1) {
+                        holder.korist1.text = plant.medicinskeKoristi[0].opis
+                    } else {
+                        holder.korist1.text = ""
+                    }
+                    if (plant.medicinskeKoristi.size >= 2) {
+                        holder.korist2.text = plant.medicinskeKoristi[1].opis
+                    } else {
+                        holder.korist2.text = ""
+                    }
+                    if (plant.medicinskeKoristi.size >= 3) {
+                        holder.korist3.text = plant.medicinskeKoristi[2].opis
+                    } else {
+                        holder.korist3.text = ""
+                    }
+                }
+                is BotanickiViewHolder ->{
+                    Log.d("PlantListAdapter", "Binding BotanickiViewHolder")
+                    holder.nazivBiljke.text = plant.naziv
+                    holder.porodica.text = plant.porodica
+                    if (plant.klimatskiTipovi.isNotEmpty()) {
+                        holder.prviKlimatskiTip.text = plant.klimatskiTipovi[0].opis
+                    } else {
+                        holder.prviKlimatskiTip.text = ""
+                    }
+                    if (plant.zemljisniTipovi.isNotEmpty()) {
+                        holder.prviTipZemljista.text = plant.zemljisniTipovi[0].naziv
+                    } else {
+                        holder.prviTipZemljista.text = ""
+                    }
+                }
+                is KuharskiViewHolder ->{
+                    Log.d("PlantListAdapter", "Binding KuharskiViewHolder")
+                    holder.nazivBiljke.text = plant.naziv
+                    holder.profilOkusa.text = plant.profilOkusa.toString()
+                    if (plant.jela.size >= 1) {
+                        holder.jelo1.text = plant.jela[0]
+                    } else {
+                        holder.jelo1.text = ""
+                    }
+                    if (plant.jela.size >= 2) {
+                        holder.jelo2.text = plant.jela[1]
+                    } else {
+                        holder.jelo2.text = ""
+                    }
+                    if (plant.jela.size >= 3) {
+                        holder.jelo3.text = plant.jela[2]
+                    } else {
+                        holder.jelo3.text = ""
+                    }
+                }
             }
-            if (plant.medicinskeKoristi.size >= 2) {
-                holder.korist2.text = plant.medicinskeKoristi[1].opis
-            } else {
-                holder.korist2.text = ""
-            }
-            if (plant.medicinskeKoristi.size >= 3) {
-                holder.korist3.text = plant.medicinskeKoristi[2].opis
-            } else {
-                holder.korist3.text = ""
-            }
+        }
+
+        fun updateMode(newMode: String) {
+            mode = newMode
+            println("Changing mode")
+            notifyDataSetChanged()
         }
 
         fun updatePlants(plants: List<Biljka>) {
@@ -207,13 +278,28 @@ class MainActivity : AppCompatActivity() {
             notifyDataSetChanged()
         }
 
-        inner class PlantViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        inner class MedicinskiViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val plantImage: ImageView = itemView.findViewById(R.id.slikaItem)
             val nazivBiljke: TextView = itemView.findViewById(R.id.nazivItem)
-            val upozorenje: TextView = itemView.findViewById(R.id.upozorenjeItem)
+            val tekstUpozorenja: TextView = itemView.findViewById(R.id.upozorenjeItem)
             val korist1: TextView = itemView.findViewById(R.id.korist1Item)
             val korist2: TextView = itemView.findViewById(R.id.korist2Item)
             val korist3: TextView = itemView.findViewById(R.id.korist3Item)
+        }
+        inner class BotanickiViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val plantImage: ImageView = itemView.findViewById(R.id.slikaItem)
+            val nazivBiljke: TextView = itemView.findViewById(R.id.nazivItem)
+            val porodica: TextView = itemView.findViewById(R.id.porodicaItem)
+            val prviKlimatskiTip: TextView = itemView.findViewById(R.id.klimatskiTipItem)
+            val prviTipZemljista: TextView = itemView.findViewById(R.id.zemljisniTipItem)
+        }
+        inner class KuharskiViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val plantImage: ImageView = itemView.findViewById(R.id.slikaItem)
+            val nazivBiljke: TextView = itemView.findViewById(R.id.nazivItem)
+            val profilOkusa: TextView = itemView.findViewById(R.id.profilOkusaItem)
+            val jelo1: TextView = itemView.findViewById(R.id.jelo1Item)
+            val jelo2: TextView = itemView.findViewById(R.id.jelo2Item)
+            val jelo3: TextView = itemView.findViewById(R.id.jelo3Item)
         }
     }
 }
