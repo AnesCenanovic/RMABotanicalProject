@@ -1,3 +1,4 @@
+
 package com.example.lab2_cinaeste
 
 import android.content.Context
@@ -28,6 +29,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var botanickiAdapter: BotanickiAdapter
     private lateinit var kuharskiAdapter: KuharskiAdapter
 
+    private var filtered: List<Biljka> = emptyList()
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -38,38 +42,73 @@ class MainActivity : AppCompatActivity() {
         biljkeRV = getAllBiljke();
 
         medicinskiAdapter = MedicinskiAdapter(biljkeRV) { clickedPlant ->
+            val filteredPlants = biljkeRV.filter { plant ->
+                plant.medicinskeKoristi.any { korist ->
+                    clickedPlant.medicinskeKoristi.contains(korist)
+                }
+            }
+            filtered= filteredPlants;
+            medicinskiAdapter.updatePlants(filteredPlants)
 
         }
         botanickiAdapter = BotanickiAdapter(biljkeRV) { clickedPlant ->
 
-        }
-        kuharskiAdapter = KuharskiAdapter(biljkeRV) { clickedPlant ->
+                val filteredPlants = biljkeRV.filter { plant ->
+                    plant.porodica == clickedPlant.porodica &&
+                            plant.zemljisniTipovi.any { soil -> clickedPlant.zemljisniTipovi.contains(soil) }
+                }
+                filtered = filteredPlants;
+                botanickiAdapter.updatePlants(filteredPlants)
+            }
 
+        kuharskiAdapter = KuharskiAdapter(biljkeRV) { clickedPlant ->
+            val filteredPlants = biljkeRV.filter { plant ->
+                plant.profilOkusa == clickedPlant.profilOkusa ||
+                        plant.jela.intersect(clickedPlant.jela).isNotEmpty()
+            }
+            filtered = filteredPlants;
+            kuharskiAdapter.updatePlants(filteredPlants)
         }
 
         spinner = findViewById(R.id.modSpinner)
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 val selectedAdapter = when (position) {
-                    0 -> medicinskiAdapter
-                    1 -> botanickiAdapter
-                    2 -> kuharskiAdapter
-                    else -> medicinskiAdapter
+                    0 -> medicinskiAdapter.apply { if (filtered.isNotEmpty()) {
+                        updatePlants(filtered)
+                    } else {
+                        updatePlants(biljkeRV)
+                    }}
+                    1 -> botanickiAdapter.apply { if (filtered.isNotEmpty()) {
+                        updatePlants(filtered)
+                    } else {
+                        updatePlants(biljkeRV)
+                    } }
+                    2 -> kuharskiAdapter.apply { if (filtered.isNotEmpty()) {
+                        updatePlants(filtered)
+                    } else {
+                        updatePlants(biljkeRV)
+                    } }
+                    else -> medicinskiAdapter.apply { if (filtered.isNotEmpty()) {
+                        updatePlants(filtered)
+                    } else {
+                        updatePlants(biljkeRV)
+                    }}
                 }
                 plantRecyclerView.adapter = selectedAdapter
             }
-                override fun onNothingSelected(parent: AdapterView<*>?) {
-                    // Do nothing
-                }
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
             }
+        }
 
-            spinner.setSelection(0) // default
-            val resetButton: Button = findViewById(R.id.resetButton)
-            resetButton.setOnClickListener {
-                medicinskiAdapter.resetPlants(biljkeRV)
-                botanickiAdapter.resetPlants(biljkeRV)
-                kuharskiAdapter.resetPlants(biljkeRV)
-            }
+        spinner.setSelection(0) // default
+        val resetButton: Button = findViewById(R.id.resetButton)
+        resetButton.setOnClickListener {
+            medicinskiAdapter.resetPlants(biljkeRV)
+            botanickiAdapter.resetPlants(biljkeRV)
+            kuharskiAdapter.resetPlants(biljkeRV)
+        }
     }
     data class Biljka(
         val naziv: String,
@@ -206,24 +245,28 @@ class MainActivity : AppCompatActivity() {
             val plant = biljkeRV[position]
             holder.itemView.setOnClickListener { onItemClick(plant) }
 
-                    Log.d("MedicinskiAdapter", "Binding MedicinskiViewHolder")
-                    holder.nazivBiljke.text = plant.naziv
-                    holder.tekstUpozorenja.text = plant.medicinskoUpozorenje
-                    if (plant.medicinskeKoristi.size >= 1) {
-                        holder.korist1.text = plant.medicinskeKoristi[0].opis
-                    } else {
-                        holder.korist1.text = ""
-                    }
-                    if (plant.medicinskeKoristi.size >= 2) {
-                        holder.korist2.text = plant.medicinskeKoristi[1].opis
-                    } else {
-                        holder.korist2.text = ""
-                    }
-                    if (plant.medicinskeKoristi.size >= 3) {
-                        holder.korist3.text = plant.medicinskeKoristi[2].opis
-                    } else {
-                        holder.korist3.text = ""
-                    }
+            holder.itemView.setOnClickListener {
+                onItemClick(plant)
+            }
+
+            Log.d("MedicinskiAdapter", "Binding MedicinskiViewHolder")
+            holder.nazivBiljke.text = plant.naziv
+            holder.tekstUpozorenja.text = plant.medicinskoUpozorenje
+            if (plant.medicinskeKoristi.size >= 1) {
+                holder.korist1.text = plant.medicinskeKoristi[0].opis
+            } else {
+                holder.korist1.text = ""
+            }
+            if (plant.medicinskeKoristi.size >= 2) {
+                holder.korist2.text = plant.medicinskeKoristi[1].opis
+            } else {
+                holder.korist2.text = ""
+            }
+            if (plant.medicinskeKoristi.size >= 3) {
+                holder.korist3.text = plant.medicinskeKoristi[2].opis
+            } else {
+                holder.korist3.text = ""
+            }
         }
         fun updatePlants(plants: List<Biljka>) {
             this.biljkeRV = plants
@@ -258,6 +301,11 @@ class MainActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: BotanickiViewHolder, position: Int) {
             Log.d("PlantListAdapter", "Binding BotanickiViewHolder")
             val plant = biljkeRV[position]
+
+            holder.itemView.setOnClickListener {
+                onItemClick(plant)
+            }
+
             holder.nazivBiljke.text = plant.naziv
             holder.porodica.text = plant.porodica
             if (plant.klimatskiTipovi.isNotEmpty()) {
@@ -302,6 +350,11 @@ class MainActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: KuharskiViewHolder, position: Int) {
             Log.d("PlantListAdapter", "Binding KuharskiViewHolder")
             val plant = biljkeRV[position]
+
+            holder.itemView.setOnClickListener {
+                onItemClick(plant)
+            }
+
             holder.nazivBiljke.text = plant.naziv
             holder.profilOkusa.text = plant.profilOkusa.toString()
             if (plant.jela.size >= 1) {
