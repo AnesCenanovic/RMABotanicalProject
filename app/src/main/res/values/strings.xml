@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">LAB2-CINAESTE</string>
+    <string name="izmijeni_jelo">Izmijeni jelo</string>
+    <string name="dodaj_jelo">Dodaj jelo</string>
     <string-array name="Fokus">
         <item>Medicinski</item>
         <item>Botanicki</item>

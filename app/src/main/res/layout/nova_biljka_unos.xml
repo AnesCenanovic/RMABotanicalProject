@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/nazivET"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Naziv biljke" />
+
+            <EditText
+                android:id="@+id/porodicaET"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Porodica biljke" />
+
+            <EditText
+                android:id="@+id/medicinskoUpozorenjeET"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Medicinsko upozorenje" />
+
+            <EditText
+                android:id="@+id/jeloET"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Naziv jela" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Medicinska korist" />
+
+                <ListView
+                    android:id="@+id/medicinskaKoristLV"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:choiceMode="multipleChoice"
+                    android:listSelector="@android:color/holo_blue_light"
+                    android:nestedScrollingEnabled="true" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Klimatski tip" />
+
+                <ListView
+                    android:id="@+id/klimatskiTipLV"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:choiceMode="multipleChoice"
+                    android:listSelector="@android:color/holo_green_light"
+                    android:nestedScrollingEnabled="true" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Zemljisni tip" />
+
+                <ListView
+                    android:id="@+id/zemljisniTipLV"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:choiceMode="multipleChoice"
+                    android:listSelector="@android:color/holo_red_light"
+                    android:nestedScrollingEnabled="true" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Profil okusa" />
+
+                <ListView
+                    android:id="@+id/profilOkusaLV"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:choiceMode="singleChoice"
+                    android:nestedScrollingEnabled="true" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Jela" />
+
+                <ListView
+                    android:id="@+id/jelaLV"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:nestedScrollingEnabled="true" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/dodajJeloBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Dodaj jelo" />
+
+            <Button
+                android:id="@+id/dodajBiljkuBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Dodaj biljku" />
+
+            <Button
+                android:id="@+id/uslikajBiljkuBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Uslikaj biljku" />
+
+            <ImageView
+                android:id="@+id/slikaIV"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:src="@android:drawable/ic_menu_camera" />
+
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>
