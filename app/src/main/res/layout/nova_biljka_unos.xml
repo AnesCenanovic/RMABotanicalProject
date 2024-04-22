@@ -18,30 +18,35 @@
                 android:id="@+id/nazivET"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Naziv biljke" />
+                android:hint="Naziv biljke"
+                android:layout_marginBottom="8dp" />
 
             <EditText
                 android:id="@+id/porodicaET"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Porodica biljke" />
+                android:hint="Porodica biljke"
+                android:layout_marginBottom="8dp" />
 
             <EditText
                 android:id="@+id/medicinskoUpozorenjeET"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Medicinsko upozorenje" />
+                android:hint="Medicinsko upozorenje"
+                android:layout_marginBottom="8dp" />
 
             <EditText
                 android:id="@+id/jeloET"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Naziv jela" />
+                android:hint="Naziv jela"
+                android:layout_marginBottom="8dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_marginBottom="8dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -60,7 +65,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_marginBottom="8dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -79,7 +85,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_marginBottom="8dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -98,7 +105,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_marginBottom="8dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -116,7 +124,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_marginBottom="8dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -134,19 +143,22 @@
                 android:id="@+id/dodajJeloBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Dodaj jelo" />
+                android:text="Dodaj jelo"
+                android:layout_marginBottom="8dp"/>
 
             <Button
                 android:id="@+id/dodajBiljkuBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Dodaj biljku" />
+                android:text="Dodaj biljku"
+                android:layout_marginBottom="8dp"/>
 
             <Button
                 android:id="@+id/uslikajBiljkuBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Uslikaj biljku" />
+                android:text="Uslikaj biljku"
+                android:layout_marginBottom="8dp"/>
 
             <ImageView
                 android:id="@+id/slikaIV"

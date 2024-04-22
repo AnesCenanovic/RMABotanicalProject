@@ -1,10 +1,18 @@
 package com.example.lab2_cinaeste
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.*
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import java.util.Locale
 
 class NovaBiljkaActivity : AppCompatActivity() {
@@ -22,6 +30,8 @@ class NovaBiljkaActivity : AppCompatActivity() {
     private lateinit var dodajBiljkuBtn: Button
     private lateinit var uslikajBiljkuBtn: Button
     private lateinit var slikaIV: ImageView
+    private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
+    private val REQUEST_IMAGE_CAPTURE = 100
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +39,31 @@ class NovaBiljkaActivity : AppCompatActivity() {
         initializeViews()
         setOnClickListeners()
         populateListViews()
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d("CameraDebug", "Picture taken")
+        if (resultCode != RESULT_OK){
+            return
+        }
+        when(requestCode){
+            REQUEST_IMAGE_CAPTURE -> {
+                val imageBitmap = data?.extras?.get("data") as? Bitmap
+                if (imageBitmap != null) {
+                    runOnUiThread {
+                        Log.d("CameraDebug", "Image captured successfully")
+                        Log.d("CameraDebug", "Image width: ${imageBitmap.width}, height: ${imageBitmap.height}")
+                        Log.d("CameraDebug", "Image format: ${imageBitmap.config}")
+                        slikaIV.setImageBitmap(imageBitmap)
+                    }
+                } else {
+                    Log.w("CameraDebug", "No image data available in intent")
+                    Toast.makeText(this, "Nema slike dostupne", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     private fun initializeViews() {
@@ -51,22 +86,41 @@ class NovaBiljkaActivity : AppCompatActivity() {
         dodajJeloBtn.setOnClickListener {
             val meal = jeloET.text.toString().trim()
             if (meal.isNotEmpty()) {
+
+                val meals = mutableListOf<String>()
+                var isValid = true
                 val adapter = jelaLV.adapter
-                if (adapter is ArrayAdapter<*>) {
-                    val position = jelaLV.tag as Int?
-                    if (position != null && position != -1) {
-                        // Edit
-                        (adapter as ArrayAdapter<String>).remove(adapter.getItem(position)!!)
-                        adapter.insert(meal, position)
-                        jelaLV.tag = -1
-                    } else {
-                        // Add
-                        (adapter as ArrayAdapter<String>).add(meal)
+                for (i in 0 until adapter.count) {
+                    val existingMeal = adapter.getItem(i)
+                    if (existingMeal != null) {
+                        meals.add(existingMeal.toString())
+                        if (meals.contains(meal.lowercase(Locale.ROOT))) {
+                            Toast.makeText(this, "Ne možete dodati isto jelo više puta", Toast.LENGTH_SHORT).show()
+                            isValid = false
+                            break
+                        }
                     }
-                    jeloET.setText("")
-                    dodajJeloBtn.text = getString(R.string.dodaj_jelo)
-                } else {
-                    Toast.makeText(this, "Greška u dodavanju jela", Toast.LENGTH_SHORT).show()
+                }
+
+                // Continue processing only if no duplicates found
+                if (isValid) {
+                    val adapter = jelaLV.adapter
+                    if (adapter is ArrayAdapter<*>) {
+                        val position = jelaLV.tag as Int?
+                        if (position != null && position != -1) {
+                            // Edit
+                            (adapter as ArrayAdapter<String>).remove(adapter.getItem(position)!!)
+                            adapter.insert(meal, position)
+                            jelaLV.tag = -1
+                        } else {
+                            // Add
+                            (adapter as ArrayAdapter<String>).add(meal)
+                        }
+                        jeloET.setText("")
+                        dodajJeloBtn.text = getString(R.string.dodaj_jelo)
+                    } else {
+                        Toast.makeText(this, "Greška u dodavanju jela", Toast.LENGTH_SHORT).show()
+                    }
                 }
             } else {
                 Toast.makeText(this, "Unesite ime jela", Toast.LENGTH_SHORT).show()
@@ -78,10 +132,16 @@ class NovaBiljkaActivity : AppCompatActivity() {
                 addPlant()
             }
         }
-
         uslikajBiljkuBtn.setOnClickListener {
-            // Logic for taking a picture
-            Toast.makeText(this, "Logic for taking a picture", Toast.LENGTH_SHORT).show()
+
+            uslikajBiljkuBtn.isEnabled = false
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            try {
+                startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
+            } catch (e: ActivityNotFoundException) {
+                Toast.makeText(this, "Nema dostupne kamere na uređaju", Toast.LENGTH_SHORT).show()
+            }
+            uslikajBiljkuBtn.isEnabled = true
         }
 
         jelaLV.setOnItemClickListener { _, _, position, _ ->
@@ -129,18 +189,6 @@ class NovaBiljkaActivity : AppCompatActivity() {
             isValid = false
         }
 
-        // Duplikati jela
-        val meals = mutableListOf<String>()
-        for (i in 0 until adapter.count) {
-            val meal = adapter.getItem(i)
-            if (meals.contains(meal?.lowercase(Locale.ROOT))) {
-                Toast.makeText(this, "Ne možete dodati isto jelo više puta", Toast.LENGTH_SHORT).show()
-                isValid = false
-                break
-            } else {
-                meals.add(meal?.lowercase(Locale.ROOT) ?: "")
-            }
-        }
 
         // medicinskaKoristLV
         val selectedMedicinskaKorist = medicinskaKoristLV.checkedItemCount
@@ -245,6 +293,9 @@ class NovaBiljkaActivity : AppCompatActivity() {
 
 
 }
+
+
+
 
 enum class Zemljiste(val naziv: String) {
         PJESKOVITO("Pjeskovito zemljište"),
