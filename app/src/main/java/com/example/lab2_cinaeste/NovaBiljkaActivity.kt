@@ -28,6 +28,7 @@ class NovaBiljkaActivity : AppCompatActivity() {
     private lateinit var jelaLV: ListView
     private lateinit var dodajJeloBtn: Button
     private lateinit var dodajBiljkuBtn: Button
+    private lateinit var scrollView : ScrollView
     private lateinit var uslikajBiljkuBtn: Button
     private lateinit var slikaIV: ImageView
     private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
@@ -80,40 +81,37 @@ class NovaBiljkaActivity : AppCompatActivity() {
         dodajBiljkuBtn = findViewById(R.id.dodajBiljkuBtn)
         uslikajBiljkuBtn = findViewById(R.id.uslikajBiljkuBtn)
         slikaIV = findViewById(R.id.slikaIV)
+        scrollView = findViewById(R.id.scrollView)
     }
 
     private fun setOnClickListeners() {
         dodajJeloBtn.setOnClickListener {
             val meal = jeloET.text.toString().trim()
             if (meal.isNotEmpty()) {
-
-                val meals = mutableListOf<String>()
                 var isValid = true
                 val adapter = jelaLV.adapter
                 for (i in 0 until adapter.count) {
                     val existingMeal = adapter.getItem(i)
                     if (existingMeal != null) {
-                        meals.add(existingMeal.toString())
-                        if (meals.contains(meal.lowercase(Locale.ROOT))) {
-                            Toast.makeText(this, "Ne možete dodati isto jelo više puta", Toast.LENGTH_SHORT).show()
+                        val lowercaseExistingMeal = existingMeal.toString().lowercase(Locale.ROOT);
+                        if (lowercaseExistingMeal.equals(meal, ignoreCase = true)) {
+                            jeloET.error = "Ne možete dodati isto jelo više puta!"
                             isValid = false
                             break
                         }
                     }
                 }
 
-                // Continue processing only if no duplicates found
+                // Nije nađen duplikat
                 if (isValid) {
                     val adapter = jelaLV.adapter
                     if (adapter is ArrayAdapter<*>) {
                         val position = jelaLV.tag as Int?
                         if (position != null && position != -1) {
-                            // Edit
                             (adapter as ArrayAdapter<String>).remove(adapter.getItem(position)!!)
                             adapter.insert(meal, position)
                             jelaLV.tag = -1
                         } else {
-                            // Add
                             (adapter as ArrayAdapter<String>).add(meal)
                         }
                         jeloET.setText("")
@@ -123,7 +121,7 @@ class NovaBiljkaActivity : AppCompatActivity() {
                     }
                 }
             } else {
-                Toast.makeText(this, "Unesite ime jela", Toast.LENGTH_SHORT).show()
+                jeloET.error = "Unesite ime jela!"
             }
         }
 
@@ -157,8 +155,8 @@ class NovaBiljkaActivity : AppCompatActivity() {
 
         // nazivET
         val naziv = nazivET.text.toString().trim()
-        if (naziv.length !in 3..19){
-            nazivET.error = "Naziv biljke mora imati između 3 i 19 znakova!"
+        if (naziv.length !in 2..20){
+            nazivET.error = "Naziv biljke mora imati između 2 i 20 znakova!"
             isValid = false
         }
         else{
@@ -166,8 +164,8 @@ class NovaBiljkaActivity : AppCompatActivity() {
         }
         // porodicaET
         val porodica = porodicaET.text.toString().trim()
-        if (porodica.length !in 3..19) {
-            porodicaET.error = "Porodica biljke mora imati između 3 i 19 znakova"
+        if (porodica.length !in 2..20) {
+            porodicaET.error = "Porodica biljke mora imati između 2 i 20 znakova!"
             isValid = false
         } else {
             porodicaET.error = null
@@ -175,8 +173,8 @@ class NovaBiljkaActivity : AppCompatActivity() {
 
         //medicinskoUpozorenjeET
         val upozorenje = medicinskoUpozorenjeET.text.toString().trim()
-        if (upozorenje.length !in 3..19) {
-            medicinskoUpozorenjeET.error = "Medicinsko upozorenje mora imati između 3 i 19 znakova"
+        if (upozorenje.length !in 2..20) {
+            medicinskoUpozorenjeET.error = "Medicinsko upozorenje mora imati između 2 i 20 znakova!"
             isValid = false
         } else {
             medicinskoUpozorenjeET.error = null
@@ -185,36 +183,35 @@ class NovaBiljkaActivity : AppCompatActivity() {
         // jelaLV
         val adapter = jelaLV.adapter as ArrayAdapter<String>
         if (adapter.isEmpty) {
-            Toast.makeText(this, "Morate dodati barem jedno jelo", Toast.LENGTH_SHORT).show()
+            jeloET.error = "Morate dodati barem jedno jelo!"
             isValid = false
         }
-
 
         // medicinskaKoristLV
         val selectedMedicinskaKorist = medicinskaKoristLV.checkedItemCount
         if (selectedMedicinskaKorist < 1) {
-            Toast.makeText(this, "Morate odabrati barem jednu medicinsku korist", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Morate odabrati barem jednu medicinsku korist!", Toast.LENGTH_SHORT).show()
             isValid = false
         }
 
         // klimatskiTipLV
         val selectedKlimatskiTip = klimatskiTipLV.checkedItemCount
         if (selectedKlimatskiTip < 1) {
-            Toast.makeText(this, "Morate odabrati barem jedan klimatski tip", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Morate odabrati barem jedan klimatski tip!", Toast.LENGTH_SHORT).show()
             isValid = false
         }
 
         // zemljisniTipLV
         val selectedZemljisniTip = zemljisniTipLV.checkedItemCount
         if (selectedZemljisniTip < 1) {
-            Toast.makeText(this, "Morate odabrati barem jedan zemljisni tip", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Morate odabrati barem jedan zemljisni tip!", Toast.LENGTH_SHORT).show()
             isValid = false
         }
 
         // profilOkusaLV
         val selectedProfilOkusa = profilOkusaLV.checkedItemCount
         if (selectedProfilOkusa < 1) {
-            Toast.makeText(this, "Morate odabrati barem jedan profil okusa", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Morate odabrati barem jedan profil okusa!", Toast.LENGTH_SHORT).show()
             isValid = false
         }
         return isValid
