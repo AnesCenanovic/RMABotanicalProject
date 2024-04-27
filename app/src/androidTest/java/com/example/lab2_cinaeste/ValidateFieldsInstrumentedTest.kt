@@ -1,12 +1,8 @@
 package com.example.lab2_cinaeste
 
 
-import android.app.Activity
-import android.content.Intent
-import android.graphics.Bitmap
-import android.os.Bundle
-import android.provider.MediaStore
-import android.widget.ImageView
+
+import android.widget.ListView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.replaceText
@@ -17,7 +13,6 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.hamcrest.Matchers.not
-import org.hamcrest.Matchers.notNullValue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,7 +22,6 @@ import org.junit.runner.RunWith
 class ValidateFieldsInstrumentedTest {
 
     @get:Rule
-    @JvmField
     val activityRule = ActivityScenarioRule(NovaBiljkaActivity::class.java)
 
     @Test
@@ -76,6 +70,8 @@ class ValidateFieldsInstrumentedTest {
     fun validatejeloETValid() {
         onView(withId(R.id.jeloET)).perform(replaceText("Aloe"))
         onView(withId(R.id.scrollView)).perform(swipeUp())
+        onView(withId(R.id.dodajJeloBtn)).perform(click())
+        onView(withId(R.id.scrollView)).perform(swipeUp())
         onView(withId(R.id.dodajBiljkuBtn)).perform(click())
         onView(withId(R.id.jeloET)).check(matches(not(hasErrorText("Morate dodati barem jedno jelo!"))))
     }
@@ -84,6 +80,18 @@ class ValidateFieldsInstrumentedTest {
         onView(withId(R.id.scrollView)).perform(swipeUp())
         onView(withId(R.id.dodajJeloBtn)).perform(click())
         onView(withId(R.id.jeloET)).check(matches((hasErrorText("Unesite ime jela!"))))
+    }
+    @Test
+    fun validatejeloETButton() {
+        onView(withId(R.id.jeloET)).perform(replaceText("Aloe"))
+        onView(withId(R.id.scrollView)).perform(swipeUp())
+        onView(withId(R.id.dodajJeloBtn)).perform(click())
+        val currentView = activityRule.scenario.onActivity {
+            val listView = it.findViewById<ListView>(R.id.jelaLV)
+            listView.performItemClick(listView,0,0)
+        }
+            onView(withId(R.id.scrollView)).perform(swipeUp())
+            onView(withId(R.id.dodajJeloBtn)).check(matches(withText("Izmijeni jelo")));
     }
     @Test
     fun validatejeloETDuplikat() {
@@ -104,5 +112,40 @@ class ValidateFieldsInstrumentedTest {
         onView(withId(R.id.scrollView)).perform(swipeUp())
         onView(withId(R.id.dodajBiljkuBtn)).perform(click())
         onView(withId(R.id.jeloET)).check(matches((hasErrorText("Morate dodati barem jedno jelo!"))))
+    }
+    @Test
+    // Isto važi za ostale multiple choice listView
+    fun validateMedicinskaKoristLVInvalid() {
+        onView(withId(R.id.scrollView)).perform(swipeUp())
+        onView(withId(R.id.dodajBiljkuBtn)).perform(click())
+        onView(withId(R.id.medicinskaKoristLVET)).check(matches((hasErrorText("Morate odabrati barem jednu medicinsku korist!"))))
+    }
+    @Test
+    fun validateMedicinskaKoristLVValid() {
+        val currentView = activityRule.scenario.onActivity {
+            val listView = it.findViewById<ListView>(R.id.medicinskaKoristLV)
+            listView.performItemClick(listView,1,0)
+            listView.performItemClick(listView,2,0)
+        }
+        onView(withId(R.id.scrollView)).perform(swipeUp())
+        onView(withId(R.id.dodajBiljkuBtn)).perform(click())
+        onView(withId(R.id.medicinskaKoristLVET)).check((matches(not(hasErrorText("Morate odabrati barem jednu medicinsku korist!")))))
+    }
+    // Single choice listView
+    @Test
+    fun validateProfilOkusaLVInvalid() {
+        onView(withId(R.id.scrollView)).perform(swipeUp())
+        onView(withId(R.id.dodajBiljkuBtn)).perform(click())
+        onView(withId(R.id.profilOkusaLVET)).check(matches((hasErrorText("Morate odabrati jedan profil okusa!"))))
+    }
+    @Test
+    fun validateProfilOkusaLVMultipleChoiceInvalid() {
+        val currentView = activityRule.scenario.onActivity {
+            val listView = it.findViewById<ListView>(R.id.profilOkusaLV)
+            listView.performItemClick(listView,1,0)
+        }
+        onView(withId(R.id.scrollView)).perform(swipeUp())
+        onView(withId(R.id.dodajBiljkuBtn)).perform(click())
+        onView(withId(R.id.profilOkusaLVET)).check((matches(not(hasErrorText("Morate odabrati jedan profil okusa!")))))
     }
 }

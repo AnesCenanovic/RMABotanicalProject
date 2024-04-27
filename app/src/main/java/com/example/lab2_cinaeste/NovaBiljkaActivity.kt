@@ -22,9 +22,13 @@ class NovaBiljkaActivity : AppCompatActivity() {
     private lateinit var medicinskoUpozorenjeET: EditText
     private lateinit var jeloET: EditText
     private lateinit var medicinskaKoristLV: ListView
+    private lateinit var medicinskaKoristLVET: EditText
     private lateinit var klimatskiTipLV: ListView
+    private lateinit var klimatskiTipLVET: EditText
     private lateinit var zemljisniTipLV: ListView
+    private lateinit var zemljsniTipLVET: EditText
     private lateinit var profilOkusaLV: ListView
+    private lateinit var profilOkusaLVET: EditText
     private lateinit var jelaLV: ListView
     private lateinit var dodajJeloBtn: Button
     private lateinit var dodajBiljkuBtn: Button
@@ -82,6 +86,10 @@ class NovaBiljkaActivity : AppCompatActivity() {
         uslikajBiljkuBtn = findViewById(R.id.uslikajBiljkuBtn)
         slikaIV = findViewById(R.id.slikaIV)
         scrollView = findViewById(R.id.scrollView)
+        medicinskaKoristLVET = findViewById(R.id.medicinskaKoristLVET)
+        klimatskiTipLVET = findViewById(R.id.klimatskiTipLVET)
+        zemljsniTipLVET = findViewById(R.id.zemljisniTipLVET)
+        profilOkusaLVET = findViewById(R.id.profilOkusaLVET)
     }
 
     private fun setOnClickListeners() {
@@ -190,28 +198,28 @@ class NovaBiljkaActivity : AppCompatActivity() {
         // medicinskaKoristLV
         val selectedMedicinskaKorist = medicinskaKoristLV.checkedItemCount
         if (selectedMedicinskaKorist < 1) {
-            Toast.makeText(this, "Morate odabrati barem jednu medicinsku korist!", Toast.LENGTH_SHORT).show()
+            medicinskaKoristLVET.error = "Morate odabrati barem jednu medicinsku korist!"
             isValid = false
         }
 
         // klimatskiTipLV
         val selectedKlimatskiTip = klimatskiTipLV.checkedItemCount
         if (selectedKlimatskiTip < 1) {
-            Toast.makeText(this, "Morate odabrati barem jedan klimatski tip!", Toast.LENGTH_SHORT).show()
+            klimatskiTipLVET.error = "Morate odabrati barem jedan klimatski tip!"
             isValid = false
         }
 
         // zemljisniTipLV
         val selectedZemljisniTip = zemljisniTipLV.checkedItemCount
         if (selectedZemljisniTip < 1) {
-            Toast.makeText(this, "Morate odabrati barem jedan zemljisni tip!", Toast.LENGTH_SHORT).show()
+            zemljsniTipLVET.error = "Morate odabrati barem jedan zemljisni tip!"
             isValid = false
         }
 
         // profilOkusaLV
         val selectedProfilOkusa = profilOkusaLV.checkedItemCount
-        if (selectedProfilOkusa < 1) {
-            Toast.makeText(this, "Morate odabrati barem jedan profil okusa!", Toast.LENGTH_SHORT).show()
+        if (selectedProfilOkusa < 1 || selectedProfilOkusa > 1) {
+            profilOkusaLVET.error = "Morate odabrati jedan profil okusa!"
             isValid = false
         }
         return isValid

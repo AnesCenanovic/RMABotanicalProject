@@ -49,10 +49,12 @@
                 android:orientation="vertical"
                 android:layout_marginBottom="8dp">
 
-                <TextView
+                <EditText
+                    android:id="@+id/medicinskaKoristLVET"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Medicinska korist" />
+                    android:text="Medicinska korist"
+                    android:enabled="false"/>
 
                 <ListView
                     android:id="@+id/medicinskaKoristLV"
@@ -69,10 +71,12 @@
                 android:orientation="vertical"
                 android:layout_marginBottom="8dp">
 
-                <TextView
+                <EditText
+                    android:id="@+id/klimatskiTipLVET"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Klimatski tip" />
+                    android:text="Klimatski tip"
+                    android:enabled="false"/>
 
                 <ListView
                     android:id="@+id/klimatskiTipLV"
@@ -89,10 +93,12 @@
                 android:orientation="vertical"
                 android:layout_marginBottom="8dp">
 
-                <TextView
+                <EditText
+                    android:id="@+id/zemljisniTipLVET"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Zemljisni tip" />
+                    android:text="Zemljisni tip"
+                    android:enabled="false"/>
 
                 <ListView
                     android:id="@+id/zemljisniTipLV"
@@ -109,10 +115,12 @@
                 android:orientation="vertical"
                 android:layout_marginBottom="8dp">
 
-                <TextView
+                <EditText
+                    android:id="@+id/profilOkusaLVET"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Profil okusa" />
+                    android:text="Profil okusa"
+                    android:enabled="false"/>
 
                 <ListView
                     android:id="@+id/profilOkusaLV"
