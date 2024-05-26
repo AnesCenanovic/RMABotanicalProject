@@ -2,6 +2,7 @@
 package com.example.lab2_cinaeste
 
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,6 +17,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class MainActivity : AppCompatActivity() {
@@ -147,7 +152,7 @@ class MainActivity : AppCompatActivity() {
                 zemljisniTipovi = listOf(Zemljiste.SLJUNOVITO, Zemljiste.PJESKOVITO)
             ),
             Biljka(
-                naziv = "Matricaria chamomilla",
+                naziv = "Kamilica (Matricaria chamomilla)",
                 porodica = "Asteraceae (glavočike)",
                 medicinskoUpozorenje = "Može uzrokovati alergijske reakcije kod osjetljivih osoba.",
                 medicinskeKoristi = listOf(MedicinskaKorist.SMIRENJE, MedicinskaKorist.PROTUUPALNO),
@@ -308,6 +313,20 @@ class MainActivity : AppCompatActivity() {
             } else {
                 holder.korist3.text = ""
             }
+
+            val trefleDAO = TrefleDAO()
+            CoroutineScope(Dispatchers.IO).launch{
+                val image = trefleDAO.getImage(plant)
+                if(image !=null){
+                    withContext(Dispatchers.Main){
+                        holder.plantImage.setImageBitmap(image)
+                    }
+                } else {
+                    withContext(Dispatchers.Main){
+                        //handle placeholder
+                    }
+                }
+            }
         }
         fun updatePlants(plants: List<Biljka>) {
             this.biljkeRV = plants
@@ -434,6 +453,4 @@ class MainActivity : AppCompatActivity() {
             notifyDataSetChanged()
         }
     }
-
-
 }

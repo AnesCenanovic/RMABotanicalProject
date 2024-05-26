@@ -44,7 +44,6 @@ class NovaBiljkaActivity : AppCompatActivity() {
         initializeViews()
         setOnClickListeners()
         populateListViews()
-
     }
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

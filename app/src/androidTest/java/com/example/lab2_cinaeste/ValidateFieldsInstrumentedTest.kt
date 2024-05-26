@@ -43,6 +43,7 @@ class ValidateFieldsInstrumentedTest {
         onView(withId(R.id.dodajBiljkuBtn)).perform(click())
         onView(withId(R.id.nazivET)).check(matches(hasErrorText("Naziv biljke mora imati između 2 i 20 znakova!")))
     }
+
     @Test
     fun validateNazivETValid() {
         onView(withId(R.id.nazivET)).perform(replaceText("Aloe"))
@@ -50,6 +51,7 @@ class ValidateFieldsInstrumentedTest {
         onView(withId(R.id.dodajBiljkuBtn)).perform(click())
         onView(withId(R.id.nazivET)).check(matches(not(hasErrorText("Naziv biljke mora imati između 2 i 20 znakova!"))))
     }
+
     @Test
     fun validatePorodicaETInvalid() {
         onView(withId(R.id.porodicaET)).perform(replaceText("A"))
@@ -57,6 +59,7 @@ class ValidateFieldsInstrumentedTest {
         onView(withId(R.id.dodajBiljkuBtn)).perform(click())
         onView(withId(R.id.porodicaET)).check(matches(hasErrorText("Porodica biljke mora imati između 2 i 20 znakova!")))
     }
+
     @Test
     fun validatePorodicaETValid() {
         onView(withId(R.id.porodicaET)).perform(replaceText("Aloe"))
@@ -64,6 +67,7 @@ class ValidateFieldsInstrumentedTest {
         onView(withId(R.id.dodajBiljkuBtn)).perform(click())
         onView(withId(R.id.porodicaET)).check(matches(not(hasErrorText("Porodica biljke mora imati između 2 i 20 znakova!"))))
     }
+
     @Test
     fun validateMedicinskoUpozorenjeETInvalid() {
         onView(withId(R.id.medicinskoUpozorenjeET)).perform(replaceText("A"))
@@ -71,6 +75,7 @@ class ValidateFieldsInstrumentedTest {
         onView(withId(R.id.dodajBiljkuBtn)).perform(click())
         onView(withId(R.id.medicinskoUpozorenjeET)).check(matches(hasErrorText("Medicinsko upozorenje mora imati između 2 i 20 znakova!")))
     }
+
     @Test
     fun validateMedicinskoUpozorenjeETValid() {
         onView(withId(R.id.medicinskoUpozorenjeET)).perform(replaceText("Aloe"))
@@ -78,6 +83,7 @@ class ValidateFieldsInstrumentedTest {
         onView(withId(R.id.dodajBiljkuBtn)).perform(click())
         onView(withId(R.id.medicinskoUpozorenjeET)).check(matches(not(hasErrorText("Medicinsko upozorenje mora imati između 2 i 20 znakova!"))))
     }
+
     @Test
     fun validatejeloETValid() {
         onView(withId(R.id.jeloET)).perform(replaceText("Aloe"))
@@ -87,12 +93,14 @@ class ValidateFieldsInstrumentedTest {
         onView(withId(R.id.dodajBiljkuBtn)).perform(click())
         onView(withId(R.id.jeloET)).check(matches(not(hasErrorText("Morate dodati barem jedno jelo!"))))
     }
+
     @Test
     fun validatejeloETEmpty() {
         onView(withId(R.id.scrollView)).perform(swipeUp())
         onView(withId(R.id.dodajJeloBtn)).perform(click())
         onView(withId(R.id.jeloET)).check(matches((hasErrorText("Unesite ime jela!"))))
     }
+
     @Test
     fun validatejeloETButton() {
         onView(withId(R.id.jeloET)).perform(replaceText("Aloe"))
@@ -100,11 +108,12 @@ class ValidateFieldsInstrumentedTest {
         onView(withId(R.id.dodajJeloBtn)).perform(click())
         val currentView = activityRule.scenario.onActivity {
             val listView = it.findViewById<ListView>(R.id.jelaLV)
-            listView.performItemClick(listView,0,0)
+            listView.performItemClick(listView, 0, 0)
         }
-            onView(withId(R.id.scrollView)).perform(swipeUp())
-            onView(withId(R.id.dodajJeloBtn)).check(matches(withText("Izmijeni jelo")));
+        onView(withId(R.id.scrollView)).perform(swipeUp())
+        onView(withId(R.id.dodajJeloBtn)).check(matches(withText("Izmijeni jelo")));
     }
+
     @Test
     fun validatejeloETDuplikat() {
         onView(withId(R.id.jeloET)).perform(replaceText("Aloe"))
@@ -119,12 +128,14 @@ class ValidateFieldsInstrumentedTest {
 
         onView(withId(R.id.jeloET)).check(matches((hasErrorText("Ne možete dodati isto jelo više puta!"))))
     }
+
     @Test
     fun validatejelaLVEmpty() {
         onView(withId(R.id.scrollView)).perform(swipeUp())
         onView(withId(R.id.dodajBiljkuBtn)).perform(click())
         onView(withId(R.id.jeloET)).check(matches((hasErrorText("Morate dodati barem jedno jelo!"))))
     }
+
     @Test
     // Isto važi za ostale multiple choice listView
     fun validateMedicinskaKoristLVInvalid() {
@@ -132,17 +143,19 @@ class ValidateFieldsInstrumentedTest {
         onView(withId(R.id.dodajBiljkuBtn)).perform(click())
         onView(withId(R.id.medicinskaKoristLVET)).check(matches((hasErrorText("Morate odabrati barem jednu medicinsku korist!"))))
     }
+
     @Test
     fun validateMedicinskaKoristLVValid() {
         val currentView = activityRule.scenario.onActivity {
             val listView = it.findViewById<ListView>(R.id.medicinskaKoristLV)
-            listView.performItemClick(listView,1,0)
-            listView.performItemClick(listView,2,0)
+            listView.performItemClick(listView, 1, 0)
+            listView.performItemClick(listView, 2, 0)
         }
         onView(withId(R.id.scrollView)).perform(swipeUp())
         onView(withId(R.id.dodajBiljkuBtn)).perform(click())
         onView(withId(R.id.medicinskaKoristLVET)).check((matches(not(hasErrorText("Morate odabrati barem jednu medicinsku korist!")))))
     }
+
     // Single choice listView
     @Test
     fun validateProfilOkusaLVInvalid() {
@@ -150,16 +163,18 @@ class ValidateFieldsInstrumentedTest {
         onView(withId(R.id.dodajBiljkuBtn)).perform(click())
         onView(withId(R.id.profilOkusaLVET)).check(matches((hasErrorText("Morate odabrati jedan profil okusa!"))))
     }
+
     @Test
     fun validateProfilOkusaLVMultipleChoiceInvalid() {
         val currentView = activityRule.scenario.onActivity {
             val listView = it.findViewById<ListView>(R.id.profilOkusaLV)
-            listView.performItemClick(listView,1,0)
+            listView.performItemClick(listView, 1, 0)
         }
         onView(withId(R.id.scrollView)).perform(swipeUp())
         onView(withId(R.id.dodajBiljkuBtn)).perform(click())
         onView(withId(R.id.profilOkusaLVET)).check((matches(not(hasErrorText("Morate odabrati jedan profil okusa!")))))
     }
+
     @Test
     fun validateUslikajBiljku() {
         val mockBitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
@@ -168,7 +183,11 @@ class ValidateFieldsInstrumentedTest {
             val resultIntent = Intent().apply {
                 putExtras(Bundle().apply { putParcelable("data", mockBitmap) })
                 val REQUEST_IMAGE_CAPTURE = 100
-                activity.onActivityResult(REQUEST_IMAGE_CAPTURE, Activity.RESULT_OK, this) // Simulate onActivityResult
+                activity.onActivityResult(
+                    REQUEST_IMAGE_CAPTURE,
+                    Activity.RESULT_OK,
+                    this
+                ) // Simulate onActivityResult
             }
         }
         onView(withId(R.id.scrollView)).perform(swipeUp())
@@ -177,7 +196,7 @@ class ValidateFieldsInstrumentedTest {
 
     }
 
-    private fun withSameBitmap(expectedBitmap: Bitmap) = object : TypeSafeMatcher<View>(){
+    private fun withSameBitmap(expectedBitmap: Bitmap) = object : TypeSafeMatcher<View>() {
         override fun describeTo(description: Description) {
             description.appendText("Drawable does not match with expected bitmap")
         }
@@ -191,3 +210,4 @@ class ValidateFieldsInstrumentedTest {
         }
     }
 }
+
