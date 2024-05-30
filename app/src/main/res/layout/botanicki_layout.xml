@@ -9,12 +9,12 @@
     <ImageView
         android:id="@+id/slikaItem"
         android:layout_width="100dp"
+        android:scaleType="centerCrop"
         android:layout_height="100dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/rounded_image_border"
-        android:src="@drawable/placeholder"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

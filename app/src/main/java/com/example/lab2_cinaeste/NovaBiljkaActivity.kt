@@ -1,18 +1,20 @@
 package com.example.lab2_cinaeste
 
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
 import java.util.Locale
 
 class NovaBiljkaActivity : AppCompatActivity() {
@@ -134,7 +136,10 @@ class NovaBiljkaActivity : AppCompatActivity() {
 
         dodajBiljkuBtn.setOnClickListener {
             if (validateFields()) {
-                addPlant()
+                CoroutineScope(Dispatchers.IO).launch {
+                    val trefleDAO = TrefleDAO(this@NovaBiljkaActivity)
+                    addPlant(trefleDAO)
+                }
             }
         }
         uslikajBiljkuBtn.setOnClickListener {
@@ -162,8 +167,8 @@ class NovaBiljkaActivity : AppCompatActivity() {
 
         // nazivET
         val naziv = nazivET.text.toString().trim()
-        if (naziv.length !in 2..20){
-            nazivET.error = "Naziv biljke mora imati između 2 i 20 znakova!"
+        if (naziv.length !in 2..40){
+            nazivET.error = "Naziv biljke mora imati između 2 i 40 znakova!"
             isValid = false
         }
         else{
@@ -241,20 +246,20 @@ class NovaBiljkaActivity : AppCompatActivity() {
         jelaLV.adapter = jelaAdapter
     }
 
-    private fun addPlant() {
+    private suspend fun addPlant(trefleDAO: TrefleDAO) {
         val naziv = nazivET.text.toString().trim()
         val porodica = porodicaET.text.toString().trim()
         val medicinskoUpozorenje = medicinskoUpozorenjeET.text.toString().trim()
 
-        val medicinskeKoristi = mutableListOf<MainActivity.MedicinskaKorist>()
+        val medicinskeKoristi = mutableListOf<MedicinskaKorist>()
         val checkedItemsMedicinskeKoristi = profilOkusaLV.checkedItemPositions
         for (i in 0 until checkedItemsMedicinskeKoristi.size()) {
             if (checkedItemsMedicinskeKoristi.valueAt(i)) {
-                medicinskeKoristi.add(MainActivity.MedicinskaKorist.entries[checkedItemsMedicinskeKoristi.keyAt(i)])
+                medicinskeKoristi.add(MedicinskaKorist.entries[checkedItemsMedicinskeKoristi.keyAt(i)])
             }
         }
 
-        val profilOkusa = MainActivity.ProfilOkusaBiljke.entries[profilOkusaLV.checkedItemPosition]
+        val profilOkusa = ProfilOkusaBiljke.entries[profilOkusaLV.checkedItemPosition]
 
         val jela = mutableListOf<String>()
         val jelaAdapter = jelaLV.adapter as ArrayAdapter<*>
@@ -262,19 +267,19 @@ class NovaBiljkaActivity : AppCompatActivity() {
             jela.add(jelaAdapter.getItem(i).toString())
         }
 
-        val klimatskiTipovi = mutableListOf<MainActivity.KlimatskiTip>()
+        val klimatskiTipovi = mutableListOf<KlimatskiTip>()
         val checkedItemsKlimatskiTipovi = klimatskiTipLV.checkedItemPositions
         for (i in 0 until checkedItemsKlimatskiTipovi.size()) {
             if (checkedItemsKlimatskiTipovi.valueAt(i)) {
-                klimatskiTipovi.add(MainActivity.KlimatskiTip.entries[checkedItemsKlimatskiTipovi.keyAt(i)])
+                klimatskiTipovi.add(KlimatskiTip.entries[checkedItemsKlimatskiTipovi.keyAt(i)])
             }
         }
 
-        val zemljisniTipovi = mutableListOf<MainActivity.Zemljiste>()
+        val zemljisniTipovi = mutableListOf<Zemljiste>()
         val checkedItemsZemljisniTipovi = zemljisniTipLV.checkedItemPositions
         for (i in 0 until checkedItemsZemljisniTipovi.size()) {
             if (checkedItemsZemljisniTipovi.valueAt(i)) {
-                zemljisniTipovi.add(MainActivity.Zemljiste.entries[checkedItemsZemljisniTipovi.keyAt(i)])
+                zemljisniTipovi.add(Zemljiste.entries[checkedItemsZemljisniTipovi.keyAt(i)])
             }
         }
 
@@ -288,54 +293,25 @@ class NovaBiljkaActivity : AppCompatActivity() {
             klimatskiTipovi,
             zemljisniTipovi
         )
+        val fixedPlant = trefleDAO.fixData(newPlant)
+
+        if (fixedPlant != null) {
+            MainActivity.biljke.add(fixedPlant)
+            Log.d("NovaBiljkaActivity", "Biljka added after fixData")
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        } else {
+            Log.w("NovaBiljkaActivity", "fixData returned null - Biljka not added")
+            Toast.makeText(this, "Greška prilikom dodavanja biljke", Toast.LENGTH_SHORT).show()
+        }
+
         Log.d("NovaBiljkaActivity", "Size of Biljke list before adding new plant: ${MainActivity.biljke.size}")
-        MainActivity.biljke.add(newPlant)
         Log.d("NovaBiljkaActivity", "Size of Biljke list after adding new plant: ${MainActivity.biljke.size}")
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
     }
-
-
 }
 
 
 
-
-enum class Zemljiste(val naziv: String) {
-        PJESKOVITO("Pjeskovito zemljište"),
-        GLINENO("Glinеno zemljište"),
-        ILOVACA("Ilovača"),
-        CRNICA("Crnica"),
-        SLJUNOVITO("Šljunovito zemljište"),
-        KRECNJACKO("Krečnjačko zemljište");
-    }
-
-    enum class KlimatskiTip(val opis: String) {
-        SREDOZEMNA("Mediteranska klima - suha, topla ljeta i blage zime"),
-        TROPSKA("Tropska klima - topla i vlažna tokom cijele godine"),
-        SUBTROPSKA("Subtropska klima - blage zime i topla do vruća ljeta"),
-        UMJERENA("Umjerena klima - topla ljeta i hladne zime"),
-        SUHA("Sušna klima - niske padavine i visoke temperature tokom cijele godine"),
-        PLANINSKA("Planinska klima - hladne temperature i kratke sezone rasta"),
-    }
-
-    enum class MedicinskaKorist(val opis: String) {
-        SMIRENJE("Smirenje - za smirenje i relaksaciju"),
-        PROTUUPALNO("Protuupalno - za smanjenje upale"),
-        PROTIVBOLOVA("Protivbolova - za smanjenje bolova"),
-        REGULACIJAPRITISKA("Regulacija pritiska - za regulaciju visokog/niskog pritiska"),
-        REGULACIJAPROBAVE("Regulacija probave"),
-        IMMUNOSUPORT("Podrška imunitetu"),
-    }
-
-    enum class ProfilOkusaBiljke(val opis: String) {
-        MENTA("Mentol - osvježavajući, hladan ukus"),
-        CITRUSNI("Citrusni - osvježavajući, aromatičan"),
-        SLATKI("Sladak okus"),
-        BEZUKUSNO("Obični biljni okus - travnat, zemljast ukus"),
-        LJUTO("Ljuto ili papreno"),
-        KORIJENASTO("Korenast - drvenast i gorak ukus"),
-        AROMATICNO("Začinski - topli i aromatičan ukus"),
-        GORKO("Gorak okus"),
-    }
 

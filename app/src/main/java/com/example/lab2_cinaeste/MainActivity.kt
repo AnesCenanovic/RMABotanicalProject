@@ -1,8 +1,8 @@
 
 package com.example.lab2_cinaeste
 
+import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -30,49 +30,10 @@ class MainActivity : AppCompatActivity() {
         BOTANICKA,
         KUHARSKA
     }
-
-    enum class Zemljiste(val naziv: String) {
-        PJESKOVITO("Pjeskovito zemljište"),
-        GLINENO("Glinеno zemljište"),
-        ILOVACA("Ilovača"),
-        CRNICA("Crnica"),
-        SLJUNOVITO("Šljunovito zemljište"),
-        KRECNJACKO("Krečnjačko zemljište");
-    }
-
-    enum class KlimatskiTip(val opis: String) {
-        SREDOZEMNA("Mediteranska klima - suha, topla ljeta i blage zime"),
-        TROPSKA("Tropska klima - topla i vlažna tokom cijele godine"),
-        SUBTROPSKA("Subtropska klima - blage zime i topla do vruća ljeta"),
-        UMJERENA("Umjerena klima - topla ljeta i hladne zime"),
-        SUHA("Sušna klima - niske padavine i visoke temperature tokom cijele godine"),
-        PLANINSKA("Planinska klima - hladne temperature i kratke sezone rasta"),
-    }
-
-    enum class MedicinskaKorist(val opis: String) {
-        SMIRENJE("Smirenje - za smirenje i relaksaciju"),
-        PROTUUPALNO("Protuupalno - za smanjenje upale"),
-        PROTIVBOLOVA("Protivbolova - za smanjenje bolova"),
-        REGULACIJAPRITISKA("Regulacija pritiska - za regulaciju visokog/niskog pritiska"),
-        REGULACIJAPROBAVE("Regulacija probave"),
-        IMMUNOSUPORT("Podrška imunitetu"),
-    }
-
-    enum class ProfilOkusaBiljke(val opis: String) {
-        MENTA("Mentol - osvježavajući, hladan ukus"),
-        CITRUSNI("Citrusni - osvježavajući, aromatičan"),
-        SLATKI("Sladak okus"),
-        BEZUKUSNO("Obični biljni okus - travnat, zemljast ukus"),
-        LJUTO("Ljuto ili papreno"),
-        KORIJENASTO("Korenast - drvenast i gorak ukus"),
-        AROMATICNO("Začinski - topli i aromatičan ukus"),
-        GORKO("Gorak okus"),
-    }
-
     companion object {
         val biljke = mutableListOf(
             Biljka(
-                naziv = "Bosiljak (Ocimum basilicum)",
+                naziv = "Bosiljak Ocimum basilicum",
                 porodica = "Lamiaceae (usnate)",
                 medicinskoUpozorenje = "Može iritati kožu osjetljivu na sunce. Preporučuje se oprezna upotreba pri korištenju ulja bosiljka.",
                 medicinskeKoristi = listOf(MedicinskaKorist.SMIRENJE, MedicinskaKorist.REGULACIJAPROBAVE),
@@ -195,7 +156,7 @@ class MainActivity : AppCompatActivity() {
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         biljkeRV = getAllBiljke();
 
-        medicinskiAdapter = MedicinskiAdapter(biljkeRV) { clickedPlant ->
+        medicinskiAdapter = MedicinskiAdapter(biljkeRV, { clickedPlant ->
             val filteredPlants = biljkeRV.filter { plant ->
                 plant.medicinskeKoristi.any { korist ->
                     clickedPlant.medicinskeKoristi.contains(korist)
@@ -204,8 +165,8 @@ class MainActivity : AppCompatActivity() {
             filtered= filteredPlants;
             medicinskiAdapter.updatePlants(filteredPlants)
 
-        }
-        botanickiAdapter = BotanickiAdapter(biljkeRV) { clickedPlant ->
+        },this)
+        botanickiAdapter = BotanickiAdapter(biljkeRV, { clickedPlant ->
 
                 val filteredPlants = biljkeRV.filter { plant ->
                     plant.porodica == clickedPlant.porodica &&
@@ -213,16 +174,16 @@ class MainActivity : AppCompatActivity() {
                 }
                 filtered = filteredPlants;
                 botanickiAdapter.updatePlants(filteredPlants)
-            }
+            },this)
 
-        kuharskiAdapter = KuharskiAdapter(biljkeRV) { clickedPlant ->
+        kuharskiAdapter = KuharskiAdapter(biljkeRV, { clickedPlant ->
             val filteredPlants = biljkeRV.filter { plant ->
                 plant.profilOkusa == clickedPlant.profilOkusa ||
                         plant.jela.intersect(clickedPlant.jela).isNotEmpty()
             }
             filtered = filteredPlants;
             kuharskiAdapter.updatePlants(filteredPlants)
-        }
+        },this)
 
         spinner = findViewById(R.id.modSpinner)
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -276,7 +237,8 @@ class MainActivity : AppCompatActivity() {
 
     class MedicinskiAdapter(
         private var biljkeRV: List<Biljka>,
-        private val onItemClick: (Biljka) -> Unit
+        private val onItemClick: (Biljka) -> Unit,
+        private val context: Context
     ) : RecyclerView.Adapter<MedicinskiAdapter.MedicinskiViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicinskiViewHolder {
@@ -314,17 +276,11 @@ class MainActivity : AppCompatActivity() {
                 holder.korist3.text = ""
             }
 
-            val trefleDAO = TrefleDAO()
+            val trefleDAO = TrefleDAO(context)
             CoroutineScope(Dispatchers.IO).launch{
                 val image = trefleDAO.getImage(plant)
-                if(image !=null){
-                    withContext(Dispatchers.Main){
-                        holder.plantImage.setImageBitmap(image)
-                    }
-                } else {
-                    withContext(Dispatchers.Main){
-                        //handle placeholder
-                    }
+                withContext(Dispatchers.Main) {
+                    holder.plantImage.setImageBitmap(image)
                 }
             }
         }
@@ -348,7 +304,8 @@ class MainActivity : AppCompatActivity() {
 
     class BotanickiAdapter(
         private var biljkeRV: List<Biljka>,
-        private val onItemClick: (Biljka) -> Unit
+        private val onItemClick: (Biljka) -> Unit,
+        private val context: Context
     ) : RecyclerView.Adapter<BotanickiAdapter.BotanickiViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BotanickiViewHolder {
@@ -378,6 +335,14 @@ class MainActivity : AppCompatActivity() {
             } else {
                 holder.prviTipZemljista.text = ""
             }
+
+            val trefleDAO = TrefleDAO(context)
+            CoroutineScope(Dispatchers.IO).launch{
+                val image = trefleDAO.getImage(plant)
+                withContext(Dispatchers.Main){
+                    holder.plantImage.setImageBitmap(image)
+                }
+            }
         }
         fun updatePlants(plants: List<Biljka>) {
             this.biljkeRV = plants
@@ -398,7 +363,8 @@ class MainActivity : AppCompatActivity() {
 
     class KuharskiAdapter(
         private var biljkeRV: List<Biljka>,
-        private val onItemClick: (Biljka) -> Unit
+        private val onItemClick: (Biljka) -> Unit,
+        private val context: Context
     ) : RecyclerView.Adapter<KuharskiAdapter.KuharskiViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): KuharskiViewHolder {
@@ -434,6 +400,14 @@ class MainActivity : AppCompatActivity() {
                 holder.jelo3.text = plant.jela[2]
             } else {
                 holder.jelo3.text = ""
+            }
+
+            val trefleDAO = TrefleDAO(context)
+            CoroutineScope(Dispatchers.IO).launch{
+                val image = trefleDAO.getImage(plant)
+                withContext(Dispatchers.Main){
+                    holder.plantImage.setImageBitmap(image)
+                }
             }
         }
         fun updatePlants(plants: List<Biljka>) {
