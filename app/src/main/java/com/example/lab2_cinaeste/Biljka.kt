@@ -5,8 +5,8 @@ data class Biljka(
     var porodica: String,
     var medicinskoUpozorenje: String,
     var medicinskeKoristi: List<MedicinskaKorist>,
-    val profilOkusa: ProfilOkusaBiljke,
+    val profilOkusa: ProfilOkusaBiljke?,
     var jela: List<String> = emptyList(),
-    val klimatskiTipovi: List<KlimatskiTip>,
+    var klimatskiTipovi: List<KlimatskiTip>,
     var zemljisniTipovi: List<Zemljiste>
 )

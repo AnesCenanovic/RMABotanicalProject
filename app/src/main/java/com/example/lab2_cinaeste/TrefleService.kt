@@ -16,11 +16,17 @@ public interface TrefleService {
         @Query("token") apiKey: String
     ): PlantResponse
 
-    @GET("plants/{id}")
+    @GET("species/{id}")
     suspend fun getPlantDetails(
         @Path("id") id: Int?,
         @Query("token") apiKey: String
     ): PlantDetailsResponse
+
+    @GET("plants")
+    suspend fun getPlantsWithFlowerColor(
+        @Query("filter[flower_color]") flowerColour: String,
+        @Query("token") apiKey: String
+    ): PlantResponse
 
     object RetrofitClient {
 

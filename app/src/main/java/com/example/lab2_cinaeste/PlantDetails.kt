@@ -5,6 +5,9 @@ import com.google.gson.annotations.SerializedName
 data class PlantDetails (
     @SerializedName("id") val id: Int,
     @SerializedName("edible") val isEdible: Boolean,
-    @SerializedName("main_species.specifications.toxicity") val toxic: String?,
-    @SerializedName("main_species.specifications.growth.soil_texture") val soilTexture: Int,
+    @SerializedName("specifications") val specifications: Specifications,
+    @SerializedName("growth") val growth: Growth,
+    @SerializedName("scientific_name") val scientificName: String,
+    @SerializedName("common_name") val commonName: String?,
+    @SerializedName("family") val familyName: String,
 )

@@ -260,7 +260,7 @@ class MainActivity : AppCompatActivity() {
             Log.d("MedicinskiAdapter", "Binding MedicinskiViewHolder")
             holder.nazivBiljke.text = plant.naziv
             holder.tekstUpozorenja.text = plant.medicinskoUpozorenje
-            if (plant.medicinskeKoristi.size >= 1) {
+            if (plant.medicinskeKoristi.isNotEmpty()) {
                 holder.korist1.text = plant.medicinskeKoristi[0].opis
             } else {
                 holder.korist1.text = ""

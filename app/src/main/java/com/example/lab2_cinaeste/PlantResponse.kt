@@ -4,11 +4,16 @@ import com.google.gson.annotations.SerializedName
 
 data class PlantResponse(
     @SerializedName("data")
-    private val data: List<Plant>? = null // Assuming the list contains Plant objects
+    private val data: List<Plant>,
+    private val biljke: List<Biljka>
 ) {
     // Getter for data
-    fun getData(): List<Plant>? {
+    fun getData(): List<Plant> {
         return data
+    }
+    // Getter for biljke
+    fun getBiljke(): List<Biljka> {
+        return biljke
     }
 }
 

@@ -9,4 +9,5 @@ enum class ProfilOkusaBiljke(val opis: String) {
     KORIJENASTO("Korenast - drvenast i gorak ukus"),
     AROMATICNO("Začinski - topli i aromatičan ukus"),
     GORKO("Gorak okus"),
+    NULL ("NEMA")
 }

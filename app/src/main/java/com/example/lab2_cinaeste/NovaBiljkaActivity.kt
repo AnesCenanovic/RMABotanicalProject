@@ -252,7 +252,7 @@ class NovaBiljkaActivity : AppCompatActivity() {
         val medicinskoUpozorenje = medicinskoUpozorenjeET.text.toString().trim()
 
         val medicinskeKoristi = mutableListOf<MedicinskaKorist>()
-        val checkedItemsMedicinskeKoristi = profilOkusaLV.checkedItemPositions
+        val checkedItemsMedicinskeKoristi = medicinskaKoristLV.checkedItemPositions
         for (i in 0 until checkedItemsMedicinskeKoristi.size()) {
             if (checkedItemsMedicinskeKoristi.valueAt(i)) {
                 medicinskeKoristi.add(MedicinskaKorist.entries[checkedItemsMedicinskeKoristi.keyAt(i)])
@@ -293,11 +293,24 @@ class NovaBiljkaActivity : AppCompatActivity() {
             klimatskiTipovi,
             zemljisniTipovi
         )
-        val fixedPlant = trefleDAO.fixData(newPlant)
 
+        val fixedPlant = trefleDAO.fixData(newPlant)
+        val test = trefleDAO.getPlantsWithFlowerColor("red","a")
+        for (plant in test) {
+            MainActivity.biljke.add(plant)
+        }
         if (fixedPlant != null) {
             MainActivity.biljke.add(fixedPlant)
             Log.d("NovaBiljkaActivity", "Biljka added after fixData")
+            for (korist in fixedPlant.medicinskeKoristi) {
+                Log.d("NovaBiljkaActivity", "- $korist")
+            }
+            for (korist in fixedPlant.klimatskiTipovi) {
+                Log.d("NovaBiljkaActivity", "- $korist")
+            }
+            for (korist in fixedPlant.zemljisniTipovi) {
+                Log.d("NovaBiljkaActivity", "- $korist")
+            }
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         } else {
