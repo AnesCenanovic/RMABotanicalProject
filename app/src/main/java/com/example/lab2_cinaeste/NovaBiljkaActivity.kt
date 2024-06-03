@@ -295,10 +295,6 @@ class NovaBiljkaActivity : AppCompatActivity() {
         )
 
         val fixedPlant = trefleDAO.fixData(newPlant)
-        val test = trefleDAO.getPlantsWithFlowerColor("red","a")
-        for (plant in test) {
-            MainActivity.biljke.add(plant)
-        }
         if (fixedPlant != null) {
             MainActivity.biljke.add(fixedPlant)
             Log.d("NovaBiljkaActivity", "Biljka added after fixData")

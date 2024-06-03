@@ -6,4 +6,13 @@
     <color name="colorPrimary">#8BC34A</color>
     <color name="colorPrimaryDark">#689F38</color>
     <color name="colorAccent">#FFC107</color>
+    <string-array name="color_options">
+        <item>red</item>
+        <item>blue</item>
+        <item>yellow</item>
+        <item>orange</item>
+        <item>purple</item>
+        <item>brown</item>
+        <item>green</item>
+    </string-array>
 </resources>

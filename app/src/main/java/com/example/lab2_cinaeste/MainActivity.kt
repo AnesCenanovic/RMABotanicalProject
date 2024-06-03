@@ -7,9 +7,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
@@ -21,6 +24,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -135,10 +139,13 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-
+    private lateinit var spinnerBoja: Spinner
+    private lateinit var pretragaET: EditText
+    private lateinit var searchBtn : Button
     private lateinit var spinner: Spinner
     private lateinit var plantRecyclerView: RecyclerView
     private lateinit var biljkeRV : List<Biljka>
+    private lateinit var biljkeFlowerColourSubstr : List<Biljka>
 
     private lateinit var medicinskiAdapter: MedicinskiAdapter
     private lateinit var botanickiAdapter: BotanickiAdapter
@@ -184,7 +191,9 @@ class MainActivity : AppCompatActivity() {
             filtered = filteredPlants;
             kuharskiAdapter.updatePlants(filteredPlants)
         },this)
-
+        spinnerBoja = findViewById(R.id.bojaSPIN)
+        pretragaET = findViewById(R.id.pretragaET)
+        searchBtn = findViewById(R.id.brzaPretraga)
         spinner = findViewById(R.id.modSpinner)
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -210,6 +219,7 @@ class MainActivity : AppCompatActivity() {
                         updatePlants(biljkeRV)
                     }}
                 }
+                updateVisibility()
                 plantRecyclerView.adapter = selectedAdapter
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -218,16 +228,32 @@ class MainActivity : AppCompatActivity() {
         }
 
         spinner.setSelection(0) // default
+        updateVisibility()
+
         val resetButton: Button = findViewById(R.id.resetButton)
         resetButton.setOnClickListener {
             medicinskiAdapter.resetPlants(biljkeRV)
             botanickiAdapter.resetPlants(biljkeRV)
+            botanickiAdapter.toggleOnClickAction(true)
             kuharskiAdapter.resetPlants(biljkeRV)
         }
         val novaBiljkaBtn = findViewById<Button>(R.id.novaBiljkaBtn)
         novaBiljkaBtn.setOnClickListener {
             val intent = Intent(this, NovaBiljkaActivity::class.java)
             startActivity(intent)
+        }
+        searchBtn.setOnClickListener {
+            if(pretragaET.text!=null){
+                val trefleDAO = TrefleDAO(this)
+                CoroutineScope(Dispatchers.IO).launch{
+                    biljkeFlowerColourSubstr = trefleDAO.getPlantsWithFlowerColor(spinnerBoja.selectedItem.toString(),pretragaET.text.toString())
+                    withContext(Dispatchers.Main){
+                        botanickiAdapter.toggleOnClickAction(false) // Disable onClick action
+                        botanickiAdapter.updatePlants(biljkeFlowerColourSubstr)
+                        plantRecyclerView.adapter = botanickiAdapter // Update RecyclerView's adapter
+                    }
+                }
+            }
         }
     }
 
@@ -308,6 +334,8 @@ class MainActivity : AppCompatActivity() {
         private val context: Context
     ) : RecyclerView.Adapter<BotanickiAdapter.BotanickiViewHolder>() {
 
+        private var executeOnClickAction: Boolean = true
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BotanickiViewHolder {
             val view = LayoutInflater.from(parent.context).inflate(R.layout.botanicki_layout, parent, false)
             return BotanickiViewHolder(view)
@@ -319,9 +347,17 @@ class MainActivity : AppCompatActivity() {
             Log.d("PlantListAdapter", "Binding BotanickiViewHolder")
             val plant = biljkeRV[position]
 
-            holder.itemView.setOnClickListener {
-                onItemClick(plant)
+            if (executeOnClickAction) {
+                Log.d("onClick", "has listener")
+                holder.itemView.setOnClickListener {
+                    onItemClick(plant)
+                }
+            } else {
+                // Remove click listener
+                holder.itemView.setOnClickListener(null)
+                Log.d("onClick", "doesnt have listener")
             }
+
 
             holder.nazivBiljke.text = plant.naziv
             holder.porodica.text = plant.porodica
@@ -358,6 +394,9 @@ class MainActivity : AppCompatActivity() {
         fun resetPlants(newPlants: List<Biljka>) {
             biljkeRV = newPlants
             notifyDataSetChanged()
+        }
+        fun toggleOnClickAction(enable: Boolean) {
+            executeOnClickAction = enable
         }
     }
 
@@ -427,4 +466,11 @@ class MainActivity : AppCompatActivity() {
             notifyDataSetChanged()
         }
     }
+    private fun updateVisibility() {
+        val selectedMode = spinner.selectedItemPosition
+        spinnerBoja.visibility = if (selectedMode == 1) VISIBLE else GONE
+        pretragaET.visibility = if (selectedMode == 1) VISIBLE else GONE
+        searchBtn.visibility = if (selectedMode == 1) VISIBLE else GONE
+    }
+
 }

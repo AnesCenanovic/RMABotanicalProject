@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal" >
+    android:orientation="horizontal"
+    android:background="@drawable/item_border">
 
     <ImageView
         android:id="@+id/slikaItem"
@@ -29,10 +29,10 @@
         android:text="Biljka"
         android:textColor="@color/colorPrimaryDark"
         android:textSize="18sp"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/slikaItem"
-        app:layout_constraintTop_toTopOf="@+id/slikaItem"
-        android:gravity="center"/>
+        app:layout_constraintTop_toTopOf="@+id/slikaItem" />
 
     <TextView
         android:id="@+id/porodicaItem"
@@ -42,10 +42,10 @@
         android:text="Porodica biljke"
         android:textColor="@color/colorPrimary"
         android:textSize="16sp"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/slikaItem"
-        app:layout_constraintTop_toBottomOf="@+id/nazivItem"
-        android:gravity="center"/>
+        app:layout_constraintTop_toBottomOf="@+id/nazivItem" />
 
     <TextView
         android:id="@+id/klimatskiTipItem"
@@ -55,10 +55,10 @@
         android:text="Klimatski tip"
         android:textColor="@color/colorPrimary"
         android:textSize="16sp"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/slikaItem"
-        app:layout_constraintTop_toBottomOf="@+id/porodicaItem"
-        android:gravity="center"/>
+        app:layout_constraintTop_toBottomOf="@+id/porodicaItem" />
 
     <TextView
         android:id="@+id/zemljisniTipItem"
@@ -69,8 +69,8 @@
         android:text="Zemljisni tip"
         android:textColor="@color/colorPrimary"
         android:textSize="16sp"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/slikaItem"
-        app:layout_constraintTop_toBottomOf="@+id/klimatskiTipItem"
-        android:gravity="center"/>
+        app:layout_constraintTop_toBottomOf="@+id/klimatskiTipItem" />
 </androidx.constraintlayout.widget.ConstraintLayout>

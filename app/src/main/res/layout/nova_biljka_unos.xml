@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    android:background="@drawable/item_border"
     android:layout_height="match_parent">
 
     <ScrollView
@@ -148,22 +149,25 @@
                     android:nestedScrollingEnabled="true" />
             </LinearLayout>
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/dodajJeloBtn"
+                android:background="@drawable/button_background"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Dodaj jelo"
                 android:layout_marginBottom="8dp"/>
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/dodajBiljkuBtn"
+                android:background="@drawable/button_background"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Dodaj biljku"
                 android:layout_marginBottom="8dp"/>
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/uslikajBiljkuBtn"
+                android:background="@drawable/button_background"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Uslikaj biljku"
