@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class PlantResponse(
     @SerializedName("data")
     private val data: List<Plant>,
+    @SerializedName("meta") val meta: pageCount,
     private val biljke: List<Biljka>
 ) {
     // Getter for data
@@ -16,4 +17,13 @@ data class PlantResponse(
         return biljke
     }
 }
+data class pageCount(
+    @SerializedName("total")
+    private val total: Int
+){
+    fun getTotal(): Int {
+        return total
+    }
+}
+
 

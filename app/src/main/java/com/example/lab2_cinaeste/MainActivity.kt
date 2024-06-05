@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         val biljke = mutableListOf(
             Biljka(
-                naziv = "Bosiljak Ocimum basilicum",
+                naziv = "Bosiljak (Ocimum basilicum)",
                 porodica = "Lamiaceae (usnate)",
                 medicinskoUpozorenje = "Može iritati kožu osjetljivu na sunce. Preporučuje se oprezna upotreba pri korištenju ulja bosiljka.",
                 medicinskeKoristi = listOf(MedicinskaKorist.SMIRENJE, MedicinskaKorist.REGULACIJAPROBAVE),
@@ -146,10 +146,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var plantRecyclerView: RecyclerView
     private lateinit var biljkeRV : List<Biljka>
     private lateinit var biljkeFlowerColourSubstr : List<Biljka>
+    private lateinit var trefleDAO: TrefleDAO
 
     private lateinit var medicinskiAdapter: MedicinskiAdapter
     private lateinit var botanickiAdapter: BotanickiAdapter
     private lateinit var kuharskiAdapter: KuharskiAdapter
+
 
     private var filtered: List<Biljka> = emptyList()
 
@@ -161,8 +163,9 @@ class MainActivity : AppCompatActivity() {
         plantRecyclerView = findViewById(R.id.biljkeRV)
         plantRecyclerView.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        biljkeRV = getAllBiljke();
-
+        biljkeRV = getAllBiljke()
+        trefleDAO = TrefleDAO()
+        trefleDAO.setContext(this)
         medicinskiAdapter = MedicinskiAdapter(biljkeRV, { clickedPlant ->
             val filteredPlants = biljkeRV.filter { plant ->
                 plant.medicinskeKoristi.any { korist ->
@@ -172,7 +175,7 @@ class MainActivity : AppCompatActivity() {
             filtered= filteredPlants;
             medicinskiAdapter.updatePlants(filteredPlants)
 
-        },this)
+        },trefleDAO)
         botanickiAdapter = BotanickiAdapter(biljkeRV, { clickedPlant ->
 
                 val filteredPlants = biljkeRV.filter { plant ->
@@ -181,16 +184,16 @@ class MainActivity : AppCompatActivity() {
                 }
                 filtered = filteredPlants;
                 botanickiAdapter.updatePlants(filteredPlants)
-            },this)
+            },trefleDAO)
 
         kuharskiAdapter = KuharskiAdapter(biljkeRV, { clickedPlant ->
             val filteredPlants = biljkeRV.filter { plant ->
                 plant.profilOkusa == clickedPlant.profilOkusa ||
-                        plant.jela.intersect(clickedPlant.jela).isNotEmpty()
+                        plant.jela.intersect(clickedPlant.jela.toSet()).isNotEmpty()
             }
             filtered = filteredPlants;
             kuharskiAdapter.updatePlants(filteredPlants)
-        },this)
+        },trefleDAO)
         spinnerBoja = findViewById(R.id.bojaSPIN)
         pretragaET = findViewById(R.id.pretragaET)
         searchBtn = findViewById(R.id.brzaPretraga)
@@ -244,9 +247,13 @@ class MainActivity : AppCompatActivity() {
         }
         searchBtn.setOnClickListener {
             if(pretragaET.text!=null){
-                val trefleDAO = TrefleDAO(this)
+                val trefleDAO = TrefleDAO()
+                trefleDAO.setContext(this@MainActivity)
                 CoroutineScope(Dispatchers.IO).launch{
                     biljkeFlowerColourSubstr = trefleDAO.getPlantsWithFlowerColor(spinnerBoja.selectedItem.toString(),pretragaET.text.toString())
+                    for(biljka in biljkeFlowerColourSubstr){
+                        trefleDAO.getImage(biljka)
+                    }
                     withContext(Dispatchers.Main){
                         botanickiAdapter.toggleOnClickAction(false) // Disable onClick action
                         botanickiAdapter.updatePlants(biljkeFlowerColourSubstr)
@@ -264,7 +271,7 @@ class MainActivity : AppCompatActivity() {
     class MedicinskiAdapter(
         private var biljkeRV: List<Biljka>,
         private val onItemClick: (Biljka) -> Unit,
-        private val context: Context
+        private val trefleDAO: TrefleDAO
     ) : RecyclerView.Adapter<MedicinskiAdapter.MedicinskiViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicinskiViewHolder {
@@ -302,7 +309,6 @@ class MainActivity : AppCompatActivity() {
                 holder.korist3.text = ""
             }
 
-            val trefleDAO = TrefleDAO(context)
             CoroutineScope(Dispatchers.IO).launch{
                 val image = trefleDAO.getImage(plant)
                 withContext(Dispatchers.Main) {
@@ -331,7 +337,7 @@ class MainActivity : AppCompatActivity() {
     class BotanickiAdapter(
         private var biljkeRV: List<Biljka>,
         private val onItemClick: (Biljka) -> Unit,
-        private val context: Context
+        private val trefleDAO: TrefleDAO
     ) : RecyclerView.Adapter<BotanickiAdapter.BotanickiViewHolder>() {
 
         private var executeOnClickAction: Boolean = true
@@ -372,7 +378,6 @@ class MainActivity : AppCompatActivity() {
                 holder.prviTipZemljista.text = ""
             }
 
-            val trefleDAO = TrefleDAO(context)
             CoroutineScope(Dispatchers.IO).launch{
                 val image = trefleDAO.getImage(plant)
                 withContext(Dispatchers.Main){
@@ -403,7 +408,7 @@ class MainActivity : AppCompatActivity() {
     class KuharskiAdapter(
         private var biljkeRV: List<Biljka>,
         private val onItemClick: (Biljka) -> Unit,
-        private val context: Context
+        private val trefleDAO: TrefleDAO
     ) : RecyclerView.Adapter<KuharskiAdapter.KuharskiViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): KuharskiViewHolder {
@@ -441,7 +446,6 @@ class MainActivity : AppCompatActivity() {
                 holder.jelo3.text = ""
             }
 
-            val trefleDAO = TrefleDAO(context)
             CoroutineScope(Dispatchers.IO).launch{
                 val image = trefleDAO.getImage(plant)
                 withContext(Dispatchers.Main){

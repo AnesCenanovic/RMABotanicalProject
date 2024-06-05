@@ -10,4 +10,8 @@ data class PlantDetails (
     @SerializedName("scientific_name") val scientificName: String,
     @SerializedName("common_name") val commonName: String?,
     @SerializedName("family") val familyName: String,
+    @SerializedName("flower") val flower: Flower
+)
+data class Flower(
+    @SerializedName("color") val color: List<String?>
 )

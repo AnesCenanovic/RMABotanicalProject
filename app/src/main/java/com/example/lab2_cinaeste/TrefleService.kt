@@ -25,7 +25,8 @@ public interface TrefleService {
     @GET("plants")
     suspend fun getPlantsWithFlowerColor(
         @Query("filter[flower_color]") flowerColour: String,
-        @Query("token") apiKey: String
+        @Query("token") apiKey: String,
+        @Query("page") page : Int
     ): PlantResponse
 
     object RetrofitClient {
@@ -34,7 +35,7 @@ public interface TrefleService {
             .addInterceptor { chain ->
                 val request = chain.request()
                 val url = request.url()
-                Log.d("TrefleDAO", "opened URL: $url")
+                //Log.d("TrefleDAO", "opened URL: $url")
                 chain.proceed(request)
             }
             .build()

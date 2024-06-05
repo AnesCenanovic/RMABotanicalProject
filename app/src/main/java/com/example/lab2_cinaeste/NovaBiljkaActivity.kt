@@ -37,11 +37,14 @@ class NovaBiljkaActivity : AppCompatActivity() {
     private lateinit var scrollView : ScrollView
     private lateinit var uslikajBiljkuBtn: Button
     private lateinit var slikaIV: ImageView
+    private lateinit var trefleDAO: TrefleDAO
     private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
     private val REQUEST_IMAGE_CAPTURE = 100
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        trefleDAO = TrefleDAO()
+        trefleDAO.setContext(this)
         setContentView(R.layout.nova_biljka_unos)
         initializeViews()
         setOnClickListeners()
@@ -137,7 +140,8 @@ class NovaBiljkaActivity : AppCompatActivity() {
         dodajBiljkuBtn.setOnClickListener {
             if (validateFields()) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    val trefleDAO = TrefleDAO(this@NovaBiljkaActivity)
+                    val trefleDAO = TrefleDAO()
+                    trefleDAO.setContext(this@NovaBiljkaActivity)
                     addPlant(trefleDAO)
                 }
             }

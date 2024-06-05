@@ -39,6 +39,7 @@ dependencies {
 
     androidTestImplementation("androidx.test.espresso:espresso-contrib:3.5.1")
     androidTestImplementation ("androidx.test.ext:junit:1.1.3")
+    testImplementation ("org.assertj:assertj-core:3.22.0")
     implementation ("com.squareup.retrofit2:retrofit:2.11.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.11.0")
     androidTestImplementation ("androidx.test:rules:1.5.0")

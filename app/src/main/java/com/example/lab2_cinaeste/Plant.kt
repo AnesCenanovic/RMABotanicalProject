@@ -7,4 +7,6 @@ data class Plant(
     @SerializedName("id") val id: Int,
     @SerializedName("family") val familyName: String,
     @SerializedName("scientific_name") val scientificName: String,
+    @SerializedName("common_name") val commonName: String?,
+    @SerializedName("image_url") val image: String?
 )
