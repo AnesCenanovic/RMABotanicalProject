@@ -40,7 +40,7 @@ public class TrefleDAO () {
             URLEncoder.encode(latinName, "UTF-8")
         }
 
-        val url = URL("https://trefle.io/api/v1/species/search?q=$encodedLatinName&token=$API_KEY")
+        val url = URL("http://trefle.io/api/v1/species/search?q=$encodedLatinName&token=$API_KEY")
         Log.d("TrefleDAO", "Query: ${url}")
         val connection = with(withContext(Dispatchers.IO) {
             url.openConnection()
@@ -80,8 +80,10 @@ public class TrefleDAO () {
 
     suspend fun fixData(biljka: Biljka): Biljka {
         val latinName = getLatin(biljka.naziv)
+        var isModified = false
+        Log.w("TrefleDAODatabase", "Fixing ${biljka.naziv}")
         if (latinName.isEmpty()) {
-           // Log.w("TrefleDAO", "Failed to extract Latin name from ${biljka.naziv}")
+            Log.w("TrefleDAO", "Failed to extract Latin name from ${biljka.naziv}")
             return biljka
         }
 
@@ -94,48 +96,55 @@ public class TrefleDAO () {
             if (plant != null) {
                 if (plant.familyName != biljka.porodica) {
                     biljka.porodica = plant.familyName
-                    //Log.w("TrefleDAO", "Updating family to ${plant.familyName}")
-                    //Log.w("TrefleDAO", "New family name  ${biljka.porodica}")
-                    //Log.w("TrefleDAO", "id  ${plant.id}")
-                    //Log.w("TrefleDAO", "id  ${plantDetails.id}")
+                    isModified = true
+                    Log.w("TrefleDAO", "Updating family to ${plant.familyName}")
+                    Log.w("TrefleDAO", "New family name  ${biljka.porodica}")
+                    Log.w("TrefleDAO", "id  ${plant.id}")
+                    Log.w("TrefleDAO", "id  ${plantDetails.id}")
                 }
             }
             if (!plantDetails.isEdible) {
                 biljka.jela = emptyList()
                 if (!biljka.medicinskoUpozorenje.contains("NIJE JESTIVO")) {
                     biljka.medicinskoUpozorenje += " NIJE JESTIVO"
+                    isModified = true
                 }
             }
             if (plantDetails.specifications.toxic != null) {
-                //Log.w("TrefleDAO", "Toxicity ${plantDetails.specifications.toxic}")
+                Log.w("TrefleDAO", "Toxicity ${plantDetails.specifications.toxic}")
                 if (!biljka.medicinskoUpozorenje.contains("TOKSIČNO")) {
                     biljka.medicinskoUpozorenje += " TOKSIČNO"
+                    isModified = true
                 }
             }
             val tipZemljista = plantDetails.growth.soilTexture?.let { mapSoilType(it) }
             if (tipZemljista != null) {
                 biljka.zemljisniTipovi = listOf(tipZemljista)
+                isModified = true
             } else {
                 biljka.zemljisniTipovi = emptyList()
-                //Log.w("TrefleDAO", "Unrecognized soil texture value: ${plantDetails.growth.soilTexture} for biljka: ${biljka.naziv}")
+                Log.w("TrefleDAO", "Unrecognized soil texture value: ${plantDetails.growth.soilTexture} for biljka: ${biljka.naziv}")
             }
 
             val light = plantDetails.growth.light
             val humidity = plantDetails.growth.atmosphericHumidity
 
-            //Log.w("TrefleDAO", "Light, humidity: $light  $humidity for biljka: ${plantDetails.id}")
+            Log.w("TrefleDAO", "Light, humidity: $light  $humidity for biljka: ${plantDetails.id}")
             if(light!=null && humidity !=null){
                 val possibleClimates = mapClimateType(light,humidity)
                 biljka.klimatskiTipovi = possibleClimates.toList()
-
+                isModified = true
                 for (klima in biljka.klimatskiTipovi){
-                    //Log.w("TrefleDAOClimate", "Climate for fixed plant : $klima")
+                    Log.w("TrefleDAOClimate", "Climate for fixed plant : $klima")
                 }
             }
-
+            if(isModified){
+                Log.w("TrefleDAO", "Fixed plant")
+                biljka.onlineChecked = true
+            }
             return biljka
         } catch (e: Exception) {
-            //Log.e("TrefleDAO", "Error fetching data for ${biljka.naziv}", e)
+            Log.e("TrefleDAO", "Error fetching data for ${biljka.naziv}", e)
             return biljka // Return unmodified biljka on error
         }
     }
@@ -145,15 +154,15 @@ public class TrefleDAO () {
            val biljke = mutableListOf<Biljka>()
            var page = 1
            try {
-               while (true) {
-                   //Log.w("TrefleDAO", "page : $page")
+               while(page<10){
+                   Log.w("TrefleDAO", "page : $page")
                    val response =
                        TrefleService.RetrofitClient.trefleService.getPlantsWithFlowerColor(
                            flowerColor,
                            API_KEY,
                            page
                        )
-                   page++
+                   page++;
                    if (response.getData().isNotEmpty()) {
                        for (plant in response.getData()) {
                            //Log.w("TrefleDAO", "plant id : ${plant.id}")
@@ -168,6 +177,7 @@ public class TrefleDAO () {
                                        API_KEY
                                    ).getData()
                                var biljkaZaDodati = Biljka(
+                                   0,
                                    naziv = responsePlant.commonName + "(" + responsePlant.scientificName + ")",
                                    porodica = responsePlant.familyName,
                                    medicinskoUpozorenje = "NEMA",
@@ -175,7 +185,8 @@ public class TrefleDAO () {
                                    profilOkusa = ProfilOkusaBiljke.NULL,
                                    jela = emptyList(),
                                    klimatskiTipovi = emptyList(),
-                                   zemljisniTipovi = emptyList()
+                                   zemljisniTipovi = emptyList(),
+                                   false
                                )
                                if (responsePlant.flower.color[0] != null) {
                                    biljkaZaDodati = fixData(biljkaZaDodati)
@@ -186,18 +197,18 @@ public class TrefleDAO () {
                    }
                }
            } catch (e: Exception) {
-               //Log.e("TrefleDAO", "Total pages: ${page-1}", )
+               Log.e("TrefleDAO", "Total pages: ${page-1}")
            }
            biljke
        }
            catch(e: Exception) {
-               //Log.e("TrefleDAO", "Error fetching data ${e.message}")
+               Log.e("TrefleDAO", "Error fetching data ${e.message}")
                emptyList()
            }
    }
     private fun mapClimateType(light: Int, humidity: Int): List<KlimatskiTip> {
 
-        val possibleTypes = mutableListOf<KlimatskiTip>()
+            val possibleTypes = mutableListOf<KlimatskiTip>()
 
             if(light in 7..9 && humidity in 1..2){
                 possibleTypes.add(KlimatskiTip.SUHA)

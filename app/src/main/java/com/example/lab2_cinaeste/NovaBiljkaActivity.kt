@@ -39,12 +39,16 @@ class NovaBiljkaActivity : AppCompatActivity() {
     private lateinit var slikaIV: ImageView
     private lateinit var trefleDAO: TrefleDAO
     private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
+    private lateinit var database: AppDatabase
+    private lateinit var db : AppDatabase.BiljkaDAO
     private val REQUEST_IMAGE_CAPTURE = 100
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         trefleDAO = TrefleDAO()
         trefleDAO.setContext(this)
+        database = AppDatabase.buildDatabase(this@NovaBiljkaActivity)
+        db = database.biljkeDao()
         setContentView(R.layout.nova_biljka_unos)
         initializeViews()
         setOnClickListeners()
@@ -288,6 +292,7 @@ class NovaBiljkaActivity : AppCompatActivity() {
         }
 
         val newPlant = Biljka(
+            0,
             naziv,
             porodica,
             medicinskoUpozorenje,
@@ -295,22 +300,18 @@ class NovaBiljkaActivity : AppCompatActivity() {
             profilOkusa,
             jela,
             klimatskiTipovi,
-            zemljisniTipovi
+            zemljisniTipovi,
+            false
         )
-
         val fixedPlant = trefleDAO.fixData(newPlant)
         if (fixedPlant != null) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val success = db.saveBiljka(newPlant)
+                Log.d("NovaBiljkaActivity", "Success adding plant :  $success")
+            }
             MainActivity.biljke.add(fixedPlant)
             Log.d("NovaBiljkaActivity", "Biljka added after fixData")
-            for (korist in fixedPlant.medicinskeKoristi) {
-                Log.d("NovaBiljkaActivity", "- $korist")
-            }
-            for (korist in fixedPlant.klimatskiTipovi) {
-                Log.d("NovaBiljkaActivity", "- $korist")
-            }
-            for (korist in fixedPlant.zemljisniTipovi) {
-                Log.d("NovaBiljkaActivity", "- $korist")
-            }
+
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         } else {
