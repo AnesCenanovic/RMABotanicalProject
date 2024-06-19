@@ -39,16 +39,16 @@ class NovaBiljkaActivity : AppCompatActivity() {
     private lateinit var slikaIV: ImageView
     private lateinit var trefleDAO: TrefleDAO
     private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
-    private lateinit var database: AppDatabase
-    private lateinit var db : AppDatabase.BiljkaDAO
+    private lateinit var database: BiljkaDatabase
+    private lateinit var db : BiljkaDAO
     private val REQUEST_IMAGE_CAPTURE = 100
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         trefleDAO = TrefleDAO()
         trefleDAO.setContext(this)
-        database = AppDatabase.buildDatabase(this@NovaBiljkaActivity)
-        db = database.biljkeDao()
+        database = BiljkaDatabase.buildDatabase(this@NovaBiljkaActivity)
+        db = database.biljkaDao()
         setContentView(R.layout.nova_biljka_unos)
         initializeViews()
         setOnClickListeners()

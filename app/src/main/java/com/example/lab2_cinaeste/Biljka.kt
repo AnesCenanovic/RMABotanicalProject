@@ -1,6 +1,7 @@
 package com.example.lab2_cinaeste
 
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
@@ -11,14 +12,14 @@ import androidx.room.TypeConverters
 data class Biljka(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val naziv: String,
-    var porodica: String,
+    @ColumnInfo("family") var porodica: String,
     var medicinskoUpozorenje: String,
     @TypeConverters(MedicinskaKoristConverter::class) var medicinskeKoristi: List<MedicinskaKorist>,
     @TypeConverters(ProfilOkusaConverter::class) val profilOkusa: ProfilOkusaBiljke?,
     @TypeConverters(JelaConverter::class) var jela: List<String> = emptyList(),
     @TypeConverters(KlimatskiTipConverter::class) var klimatskiTipovi: List<KlimatskiTip>,
     @TypeConverters(ZemljisteConverter::class) var zemljisniTipovi: List<Zemljiste>?,
-    var onlineChecked: Boolean
+    var onlineChecked: Boolean? = false
 )
 
 class MedicinskaKoristConverter {
