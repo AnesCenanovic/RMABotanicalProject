@@ -177,7 +177,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
 
     database = BiljkaDatabase.buildDatabase(this@MainActivity)
     //database.close()
-    //this@MainActivity.deleteDatabase("biljke-db")
+    this@MainActivity.deleteDatabase("biljke-db")
     db = database.biljkaDao()
 
 
@@ -200,10 +200,10 @@ override fun onCreate(savedInstanceState: Bundle?) {
     plantRecyclerView.layoutManager =
         LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
-    CoroutineScope(Dispatchers.IO).launch {
+    /*CoroutineScope(Dispatchers.IO).launch {
         val fixed = db.fixOfflineBiljka()
         Log.d("BiljkeStatic", "Fixed plants: $fixed")
-    }
+    }*/
 
 
     medicinskiAdapter = MedicinskiAdapter(biljkeRV, { clickedPlant ->
